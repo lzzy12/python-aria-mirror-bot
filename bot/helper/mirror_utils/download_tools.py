@@ -1,9 +1,9 @@
+from bot.helper.mirror_utils.mega_tools import mega_download
 from time import sleep
 from bot import DOWNLOAD_DIR, DOWNLOAD_STATUS_UPDATE_INTERVAL, aria2
 from .download_status import DownloadStatus
 from bot.helper.ext_utils.bot_utils import *
 from bot.helper.ext_utils.exceptions import KillThreadException
-
 
 class DownloadHelper:
 
@@ -13,6 +13,8 @@ class DownloadHelper:
 
     def add_download(self, link: str):
         if is_url(link):
+            if 'mega.nz' in link:
+                mega_download(link, DOWNLOAD_DIR + str(self.__listener.uid), self.__listener)
             if link.endswith('.torrent'):
                 self.__is_torrent = True
             download = aria2.add_uris([link], {'dir': DOWNLOAD_DIR + str(self.__listener.uid)})
@@ -36,7 +38,7 @@ class DownloadHelper:
 
     def __update_download_status(self):
         status_list = get_download_status_list()
-        index = get_download_index(status_list, self.__get_download().gid)
+        index = get_download_index_by_aria_gid(status_list, self.__get_download().gid)
         # This tracks if message exists or did it get replaced by other status message
         should_update = True
         if self.__is_torrent:
@@ -74,7 +76,7 @@ class DownloadHelper:
                 return
             if should_update:
                 status_list = get_download_status_list()
-                index = get_download_index(status_list, self.__get_download().gid)
+                index = get_download_index_by_aria_gid(status_list, self.__get_download().gid)
                 # TODO: Find a better way to differentiate between 2 list of objects
                 progress_str_list = get_download_str()
                 if progress_str_list != previous:

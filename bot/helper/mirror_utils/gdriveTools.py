@@ -61,7 +61,7 @@ class GoogleDriveHelper:
                     try:
                         LOGGER.info('Updating messages')
                         _list = get_download_status_list()
-                        index = get_download_index(_list, get_download(self.__listener.message.message_id).gid)
+                        index = get_download_index_by_aria_gid(_list, get_download(self.__listener.message.message_id).gid)
                         self.__listener.onUploadProgress(_list, index)
                     except KillThreadException as e:
                         LOGGER.info(f'Stopped calling onDownloadProgress(): {str(e)}')
@@ -110,7 +110,7 @@ class GoogleDriveHelper:
 
     def upload(self, file_name: str):
         _list = get_download_status_list()
-        index = get_download_index(_list, get_download(self.__listener.message.message_id).gid)
+        index = get_download_index_by_aria_gid(_list, get_download(self.__listener.message.message_id).gid)
         self.__listener.onUploadStarted(_list, index)
         file_dir = f"{DOWNLOAD_DIR}{self.__listener.message.message_id}"
         file_path = f"{file_dir}/{file_name}"

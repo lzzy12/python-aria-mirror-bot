@@ -61,10 +61,18 @@ def get_progress_bar_string(status):
     return p_str
 
 
-def get_download_index(_list, gid):
+def get_download_index_by_aria_gid(_list, gid):
     index = 0
     for i in _list:
         if i.download().gid == gid:
+            return index
+        index += 1
+
+
+def get_download_index_by_uid(_list, uid):
+    index = 0
+    for i in _list:
+        if i.uid() == uid:
             return index
         index += 1
 
