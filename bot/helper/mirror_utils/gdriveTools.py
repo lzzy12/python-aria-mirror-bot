@@ -95,8 +95,9 @@ class GoogleDriveHelper:
         }
         return self.__service.permissions().create(fileId=drive_id, body=permissions).execute()
 
-    def upload_file(self, file_path, file_name, mime_type, parent_id):
+    def upload_file(self, file_path, file_name, parent_id):
         # File body description
+        mime_type = get_mime_type(file_path)
         file_metadata = {
             'name': file_name,
             'description': 'mirror',
@@ -145,8 +146,7 @@ class GoogleDriveHelper:
         threading.Thread(target=self._on_upload_progress).start()
         if os.path.isfile(file_path):
             try:
-                mime_type = get_mime_type(file_path)
-                link = self.upload_file(file_path, file_name, mime_type, parent_id)
+                link = self.upload_file(file_path, file_name, parent_id)
                 if link is None:
                     raise Exception('Upload has been manually cancelled')
                 LOGGER.info("Uploaded To G-Drive: " + file_path)
@@ -205,10 +205,9 @@ class GoogleDriveHelper:
                 current_dir_id = self.create_directory(item, parent_id)
                 new_id = self.upload_dir(current_file_name, current_dir_id)
             else:
-                mime_type = get_mime_type(current_file_name)
                 file_name = current_file_name.split("/")[-1]
                 # current_file_name will have the full path
-                self.upload_file(current_file_name, file_name, mime_type, parent_id)
+                self.upload_file(current_file_name, file_name, parent_id)
                 new_id = parent_id
         return new_id
 
