@@ -19,7 +19,7 @@ class GoogleDriveHelper:
     def __init__(self, listener=None):
         self.__G_DRIVE_TOKEN_FILE = "token.pickle"
         # Check https://developers.google.com/drive/scopes for all available scopes
-        self.__OAUTH_SCOPE = "https://www.googleapis.com/auth/drive.file"
+        self.__OAUTH_SCOPE = ["https://www.googleapis.com/auth/drive.file"]
         # Redirect URI for installed apps, can be left as is
         self.__REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"
         self.__G_DRIVE_DIR_MIME_TYPE = "application/vnd.google-apps.folder"
@@ -219,8 +219,10 @@ class GoogleDriveHelper:
                 credentials = pickle.load(f)
         if credentials is None or not credentials.valid:
             if credentials and credentials.expired and credentials.refresh_token:
+                LOGGER.info('Token exists but credentials expired. Refreshing!')
                 credentials.refresh(Request())
             else:
+                LOGGER.info('token does not exist! Generating with credentials.json')
                 flow = InstalledAppFlow.from_client_secrets_file(
                     'credentials.json', self.__OAUTH_SCOPE)
                 LOGGER.info(flow)
@@ -229,6 +231,8 @@ class GoogleDriveHelper:
             # Save the credentials for the next run
             with open(self.__G_DRIVE_TOKEN_FILE, 'wb') as token:
                 pickle.dump(credentials, token)
+        else:
+            LOGGER.info('Google Drive token already valid!')
         return build('drive', 'v3', credentials=credentials, cache_discovery=False)
 
     def drive_list(self, fileName):
