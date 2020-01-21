@@ -1,10 +1,11 @@
 import logging
-import aria2p
-import threading
 import os
-from dotenv import load_dotenv
-import telegram.ext as tg
+import threading
 import time
+
+import aria2p
+import telegram.ext as tg
+from dotenv import load_dotenv
 
 botStartTime = time.time()
 if os.path.exists('log.txt'):
@@ -28,7 +29,7 @@ LOGGER = logging.getLogger(__name__)
 
 try:
     if bool(getConfig('_____REMOVE_THIS_LINE_____')):
-        logging.ERROR('The README.md file there to be read! Exiting now!')
+        logging.error('The README.md file there to be read! Exiting now!')
         exit()
 except KeyError:
     pass
@@ -80,7 +81,7 @@ except KeyError:
     INDEX_URL = None
 try:
     IS_TEAM_DRIVE = getConfig('IS_TEAM_DRIVE')
-    if IS_TEAM_DRIVE == 'True' or IS_TEAM_DRIVE == 'true':
+    if IS_TEAM_DRIVE.lower() == 'true':
         IS_TEAM_DRIVE = True
     else:
         IS_TEAM_DRIVE = False
