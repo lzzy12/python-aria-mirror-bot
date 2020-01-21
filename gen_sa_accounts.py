@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import errno
 import os
 import pickle
@@ -147,9 +145,11 @@ def _create_sa_keys(iam, projects, path):
                 print('Redownloading keys from %s' % i)
                 current_key_dump = []
             else:
+                index = 0
                 for j in current_key_dump:
-                    with open('%s/%s.json' % (path, j[0]), 'w+') as f:
+                    with open(f'{path}/{index}.json', 'w+') as f:
                         f.write(j[1])
+                    index += 1
 
 
 # Delete Service Accounts
