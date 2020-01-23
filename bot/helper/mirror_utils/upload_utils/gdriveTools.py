@@ -3,11 +3,11 @@ import os
 import pickle
 
 from google.auth.transport.requests import Request
+from google.oauth2 import service_account
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
-from oauth2client.service_account import ServiceAccountCredentials
 from tenacity import *
 
 from bot import LOGGER, parent_id, DOWNLOAD_DIR, IS_TEAM_DRIVE, INDEX_URL, DOWNLOAD_STATUS_UPDATE_INTERVAL, \
@@ -44,8 +44,9 @@ def authorize():
             with open(G_DRIVE_TOKEN_FILE, 'wb') as token:
                 pickle.dump(credentials, token)
     else:
-        credentials = ServiceAccountCredentials \
-            .from_json_keyfile_name(f'accounts/{SERVICE_ACCOUNT_INDEX}.json')
+        credentials = service_account.Credentials \
+            .from_service_account_file(f'accounts/{SERVICE_ACCOUNT_INDEX}.json',
+                                       scopes=OAUTH_SCOPE)
     return build('drive', 'v3', credentials=credentials, cache_discovery=False)
 
 
