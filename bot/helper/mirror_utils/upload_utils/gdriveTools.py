@@ -10,8 +10,7 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 from tenacity import *
 
-from bot import LOGGER, parent_id, DOWNLOAD_DIR, IS_TEAM_DRIVE, INDEX_URL, DOWNLOAD_STATUS_UPDATE_INTERVAL, \
-    USE_SERVICE_ACCOUNTS
+from bot import LOGGER, parent_id, DOWNLOAD_DIR, IS_TEAM_DRIVE, INDEX_URL, USE_SERVICE_ACCOUNTS
 from bot.helper.ext_utils.bot_utils import *
 from bot.helper.ext_utils.fs_utils import get_mime_type
 
@@ -58,6 +57,7 @@ class GoogleDriveHelper:
     REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"
     G_DRIVE_DIR_MIME_TYPE = "application/vnd.google-apps.folder"
     G_DRIVE_BASE_DOWNLOAD_URL = "https://drive.google.com/uc?id={}&export=download"
+    UPDATE_INTERVAL = 5
 
     def __init__(self, name=None, listener=None):
         self.__listener = listener
@@ -94,7 +94,7 @@ class GoogleDriveHelper:
             self._file_uploaded_bytes = self.status.total_size * self.status.progress()
             LOGGER.info(f'Chunk size: {get_readable_file_size(chunk_size)}')
             self.uploaded_bytes += chunk_size
-            self.total_time += DOWNLOAD_STATUS_UPDATE_INTERVAL
+            self.total_time += self.UPDATE_INTERVAL
 
     @staticmethod
     def __upload_empty_file(path, file_name, mime_type, parent_id=None):
@@ -183,7 +183,7 @@ class GoogleDriveHelper:
         file_path = f"{file_dir}/{file_name}"
         LOGGER.info("Uploading File: " + file_path)
         self.start_time = time.time()
-        self.updater = setInterval(5, self._on_upload_progress)
+        self.updater = setInterval(self.UPDATE_INTERVAL, self._on_upload_progress)
         if os.path.isfile(file_path):
             try:
                 mime_type = get_mime_type(file_path)
