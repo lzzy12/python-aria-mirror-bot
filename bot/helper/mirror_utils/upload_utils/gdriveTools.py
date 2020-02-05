@@ -65,21 +65,6 @@ class GoogleDriveHelper:
             self.uploaded_bytes += chunk_size
             self.total_time += self.UPDATE_INTERVAL
 
-    @staticmethod
-    def __upload_empty_file(path, file_name, mime_type, parent_id=None):
-        media_body = MediaFileUpload(path,
-                                     mimetype=mime_type,
-                                     resumable=False)
-        file_metadata = {
-            'name': file_name,
-            'description': 'mirror',
-            'mimeType': mime_type,
-        }
-        if parent_id is not None:
-            file_metadata['parents'] = [parent_id]
-        return self.__service.files().create(supportsTeamDrives=True,
-                                      body=file_metadata, media_body=media_body).execute()
-
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(5),
            retry=retry_if_exception_type(HttpError), before=before_log(LOGGER, logging.DEBUG))
     def __set_permission(self, drive_id):
@@ -108,10 +93,11 @@ class GoogleDriveHelper:
                                          mimetype=mime_type,
                                          resumable=False)
             response = self.__service.files().create(supportsTeamDrives=True,
-                                              body=file_metadata, media_body=media_body).execute()
+                                                     body=file_metadata, media_body=media_body).execute()
             if not IS_TEAM_DRIVE:
                 self.__set_permission(response['id'])
-            drive_file = self.__service.files().get(fileId=response['id']).execute()
+            drive_file = self.__service.files().get(supportsTeamDrives=True,
+                                                    fileId=response['id']).execute()
             download_url = self.__G_DRIVE_BASE_DOWNLOAD_URL.format(drive_file.get('id'))
             return download_url
         media_body = MediaFileUpload(file_path,
