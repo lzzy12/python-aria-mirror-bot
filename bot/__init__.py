@@ -97,6 +97,6 @@ try:
 except KeyError:
     USE_SERVICE_ACCOUNTS = False
 
-updater = tg.Updater(token=BOT_TOKEN)
+updater = tg.Updater(token=BOT_TOKEN,request_kwargs={'read_timeout': 60, 'connect_timeout': 60})
 bot = updater.bot
 dispatcher = updater.dispatcher
