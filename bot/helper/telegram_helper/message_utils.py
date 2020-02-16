@@ -25,7 +25,7 @@ def editMessage(text: str, message: Message):
     try:
         bot.edit_message_text(text=text, message_id=message.message_id,
                               chat_id=message.chat.id,
-                              parse_mode='HTMl',timeout=60)
+                              parse_mode='HTMl')
     except TimedOut as e:
         LOGGER.error(str(e))
 
@@ -33,7 +33,7 @@ def editMessage(text: str, message: Message):
 def deleteMessage(bot, message: Message):
     try:
         bot.delete_message(chat_id=message.chat.id,
-                           message_id=message.message_id,timeout=60)
+                           message_id=message.message_id)
     except Exception as e:
         LOGGER.error(str(e))
 
