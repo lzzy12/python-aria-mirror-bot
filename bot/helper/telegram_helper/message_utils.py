@@ -9,31 +9,25 @@ from bot import bot
 
 
 def sendMessage(text: str, bot, update: Update):
-    try:
-        return bot.send_message(update.message.chat_id,
+    return bot.send_message(update.message.chat_id,
                             reply_to_message_id=update.message.message_id,
-                            text=text, parse_mode='HTMl',timeout=60)
-    except TimedOut as e:
-        LOGGER.error(str(e))
-        time.sleep(5) #sleep for some time and try request again
-        return bot.send_message(update.message.chat_id,
-                            reply_to_message_id=update.message.message_id,
-                            text=text, parse_mode='HTMl',timeout=60)
+                            text=text, parse_mode='HTMl')
 
 
 def editMessage(text: str, message: Message):
     try:
         bot.edit_message_text(text=text, message_id=message.message_id,
                               chat_id=message.chat.id,
-                              parse_mode='HTMl',timeout=60)
+                              parse_mode='HTMl')
     except TimedOut as e:
         LOGGER.error(str(e))
+        pass
 
 
 def deleteMessage(bot, message: Message):
     try:
         bot.delete_message(chat_id=message.chat.id,
-                           message_id=message.message_id,timeout=60)
+                           message_id=message.message_id)
     except Exception as e:
         LOGGER.error(str(e))
 
