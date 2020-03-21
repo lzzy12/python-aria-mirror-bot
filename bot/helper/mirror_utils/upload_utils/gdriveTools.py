@@ -40,6 +40,7 @@ class GoogleDriveHelper:
         self.status = None
         self.updater = None
         self.name = name
+        self.service_account_count = len(os.listdir("accounts"))
 
     def cancel(self):
         self.is_cancelled = True
@@ -64,6 +65,14 @@ class GoogleDriveHelper:
             LOGGER.info(f'Chunk size: {get_readable_file_size(chunk_size)}')
             self.uploaded_bytes += chunk_size
             self.total_time += self.UPDATE_INTERVAL
+
+    def switchServiceAccount(self):
+        global SERVICE_ACCOUNT_INDEX
+        if SERVICE_ACCOUNT_INDEX == self.service_account_count - 1:
+            SERVICE_ACCOUNT_INDEX = 0
+        SERVICE_ACCOUNT_INDEX += 1
+        LOGGER.info(f"Switching to {SERVICE_ACCOUNT_INDEX}.json service account")
+        self.__service = self.authorize()
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(5),
            retry=retry_if_exception_type(HttpError), before=before_log(LOGGER, logging.DEBUG))
@@ -117,12 +126,13 @@ class GoogleDriveHelper:
             except HttpError as err:
                 if err.resp.get('content-type', '').startswith('application/json'):
                     reason = json.loads(err.content).get('error').get('errors')[0].get('reason')
-                    if reason == 'userRateLimitExceeded':
-                        global SERVICE_ACCOUNT_INDEX
-                        SERVICE_ACCOUNT_INDEX += 1
-                        LOGGER.info(f"Switching to {SERVICE_ACCOUNT_INDEX}.json service account")
-                        self.__service = self.authorize()
-                raise err
+                    if reason == 'userRateLimitExceeded' or reason == 'dailyLimitExceeded':
+                        if USE_SERVICE_ACCOUNTS:
+                            self.switchServiceAccount()
+                            LOGGER.info(f"Got: {reason}, Trying Again.")
+                            self.upload_file(file_path, file_name, mime_type, parent_id)
+                    else:
+                        raise err
         self._file_uploaded_bytes = 0
         # Insert new permissions
         if not IS_TEAM_DRIVE:
