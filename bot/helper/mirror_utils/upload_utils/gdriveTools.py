@@ -241,7 +241,9 @@ class GoogleDriveHelper:
         LOGGER.info(f"Syncing: {local_path}")
         new_id = None
         while True:
-            response = self.__service.files().list(q=q,
+            response = self.__service.files().list(supportsTeamDrives=True,
+                                                    includeTeamDriveItems=True,
+                                                    q=q,
                                                   spaces='drive',
                                                   fields='nextPageToken, files(id, name, mimeType,size)',
                                                   pageToken=page_token).execute()
