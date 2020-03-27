@@ -6,6 +6,7 @@ from bot.helper.ext_utils.fs_utils import clean_download
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from time import sleep
 from bot.helper.ext_utils.bot_utils import getDownloadByGid
+from ..helper.mirror_utils.download_utils.youtube_dl_download_helper import YoutubeDLHelper
 
 @run_async
 def cancel_mirror(bot,update):
@@ -43,10 +44,13 @@ def cancel_mirror(bot,update):
         return
     elif dl.status() != "Queued":
         download = dl.download()
-        if len(download.followed_by_ids) != 0:
-            downloads = aria2.get_downloads(download.followed_by_ids)
-            aria2.pause(downloads)
-        aria2.pause([download])
+        if isinstance(download,YoutubeDLHelper):
+            download.cancel_download()
+        else:
+            if len(download.followed_by_ids) != 0:
+                downloads = aria2.get_downloads(download.followed_by_ids)
+                aria2.pause(downloads)
+            aria2.pause([download])
     else:
         dl._listener.onDownloadError("Download stopped by user!")
     sleep(1)  # Wait a Second For Aria2 To free Resources.
