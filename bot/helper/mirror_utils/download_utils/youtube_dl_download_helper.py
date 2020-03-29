@@ -69,6 +69,8 @@ class YoutubeDLHelper(DownloadHelper):
 
     def extractMetaData(self, link):
         result = self.ydl.extract_info(link, download=False)
+        if result.get('direct'):
+            return None
         if 'entries' in result:
             video = result['entries'][0]
             for v in result['entries']:
