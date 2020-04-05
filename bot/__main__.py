@@ -1,5 +1,7 @@
 import shutil
 import signal
+from os import execl
+from sys import executable
 
 from telegram.ext import CommandHandler, run_async
 
@@ -31,6 +33,12 @@ def stats(bot, update):
 def start(bot,update):
     sendMessage("This is a bot which can mirror all your links to Google drive!\n"
                 "Type /help to get a list of available commands", bot, update)
+
+
+@run_async
+def restart(bot,update):
+    reply = sendMessage("Restarting, Please wait!", bot, update)
+    execl(executable, executable, "-m", "bot")
 
 
 @run_async
@@ -77,6 +85,8 @@ def main():
                                    filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
     ping_handler = CommandHandler(BotCommands.PingCommand, ping,
                                   filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
+    restart_handler = CommandHandler(BotCommands.RestartCommand, restart,
+                                  filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
     help_handler = CommandHandler(BotCommands.HelpCommand,
                                   bot_help, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
     stats_handler = CommandHandler(BotCommands.StatsCommand,
@@ -84,6 +94,7 @@ def main():
     log_handler = CommandHandler(BotCommands.LogCommand, log, filters=CustomFilters.owner_filter)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(ping_handler)
+    dispatcher.add_handler(restart_handler)
     dispatcher.add_handler(help_handler)
     dispatcher.add_handler(stats_handler)
     dispatcher.add_handler(log_handler)
