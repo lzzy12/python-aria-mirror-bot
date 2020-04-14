@@ -8,7 +8,8 @@ from bot.helper.telegram_helper.message_utils import *
 import shutil
 from .helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone
+from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch
+
 
 @run_async
 def stats(update,context):
@@ -19,10 +20,9 @@ def stats(update,context):
     free = get_readable_file_size(free)
     stats = f'Bot Uptime: {currentTime}\n' \
             f'Total disk space: {total}\n' \
-                        f'Used: {used}\n' \
-                        f'Free: {free}'
-    sendMessage(stats, context.bot, update)
-
+            f'Used: {used}\n' \
+            f'Free: {free}'
+    sendMessage(stats, bot, update)
 
 
 @run_async
@@ -45,13 +45,22 @@ def log(update,context):
 
 
 @run_async
-def bot_help(bot,update):
+def log(update,context):
+    sendLogFile(context.bot, update)
+
+
+@run_async
+def bot_help(update, context):
     help_string = f'''
 /{BotCommands.HelpCommand}: To get this message
 
 /{BotCommands.MirrorCommand} [download_url][magnet_link]: Start mirroring the link to google drive
 
 /{BotCommands.TarMirrorCommand} [download_url][magnet_link]: start mirroring and upload the archived (.tar) version of the download
+
+/{BotCommands.WatchCommand} [youtube-dl supported link]: Mirror through youtube-dl 
+
+/{BotCommands.TarWatchCommand} [youtube-dl supported link]: Mirror through youtube-dl and tar before uploading
 
 /{BotCommands.CancelMirror} : Reply to the message by which the download was initiated and that download will be cancelled
 
@@ -78,7 +87,7 @@ def main():
     help_handler = CommandHandler(BotCommands.HelpCommand,
                                   bot_help, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
     stats_handler = CommandHandler(BotCommands.StatsCommand,
-                                  stats, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
+                                   stats, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
     log_handler = CommandHandler(BotCommands.LogCommand, log, filters=CustomFilters.owner_filter)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(ping_handler)

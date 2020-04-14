@@ -1,9 +1,32 @@
 from .download_helper import DownloadHelper
 import time
-from youtube_dl import YoutubeDL
+from youtube_dl import YoutubeDL, DownloadError
 import threading
 from bot import LOGGER, download_dict_lock, download_dict, DOWNLOAD_DIR
 from ..status_utils.youtube_dl_download_status import YoutubeDLDownloadStatus
+import logging
+import re
+
+LOGGER = logging.getLogger(__name__)
+
+
+class MyLogger:
+    def __init__(self, obj):
+        self.obj = obj
+
+    def debug(self, msg):
+        LOGGER.debug(msg)
+        # Hack to fix changing changing extension
+        match = re.search(r'.ffmpeg..Merging formats into..(.*?).$', msg)
+        if match and not self.obj.is_playlist:
+            self.obj.name = match.group(1)
+
+    def warning(self, msg):
+        LOGGER.warning(msg)
+
+    def error(self, msg):
+        LOGGER.error(msg)
+        #self.obj.onDownloadError(msg)
 
 
 class YoutubeDLHelper(DownloadHelper):
@@ -16,6 +39,8 @@ class YoutubeDLHelper(DownloadHelper):
         self.opts = {
             'format': 'bestaudio/best',
             'progress_hooks': [self.__onDownloadProgress],
+            'usenetrc': True,
+            'format': "best"
         }
         self.ydl = YoutubeDL(self.opts)
         self.__download_speed = 0
@@ -64,7 +89,7 @@ class YoutubeDLHelper(DownloadHelper):
     def __onDownloadComplete(self):
         self.__listener.onDownloadComplete()
 
-    def __onDownloadError(self, error):
+    def onDownloadError(self, error):
         self.__listener.onDownloadError(error)
 
     def extractMetaData(self, link):
@@ -90,14 +115,21 @@ class YoutubeDLHelper(DownloadHelper):
     def __download(self, link):
         try:
             self.ydl.download([link], )
+            with YoutubeDL(self.opts) as ydl:
+                try:
+                    ydl.download([link])
+                except DownloadError as e:
+                    self.onDownloadError(str(e))
+                    return
             self.__onDownloadComplete()
         except ValueError:
             LOGGER.info("Download Cancelled by User!")
-            self.__onDownloadError("Download Cancelled by User!")
+            self.onDownloadError("Download Cancelled by User!")
 
     def add_download(self, link, path):
         LOGGER.info(f"Downloading with YT-DL: {link}")
         self.__gid = f"{self.vid_id}{self.__listener.uid}"
+        self.opts['logger'] = MyLogger(self)
         if not self.is_playlist:
             self.opts['outtmpl'] = f"{path}/%(title)s.%(ext)s"
         else:
