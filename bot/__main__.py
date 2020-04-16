@@ -36,8 +36,8 @@ def start(bot,update):
 
 
 @run_async
-def restart(bot,update):
-    reply = sendMessage("Restarting, Please wait!", bot, update)
+def restart(update, context):
+    reply = sendMessage("Restarting, Please wait!", context.bot, update)
     execl(executable, executable, "-m", "bot")
 
 
