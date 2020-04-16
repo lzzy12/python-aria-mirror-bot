@@ -86,7 +86,7 @@ def main():
     ping_handler = CommandHandler(BotCommands.PingCommand, ping,
                                   filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
     restart_handler = CommandHandler(BotCommands.RestartCommand, restart,
-                                  filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
+                                  filters=CustomFilters.owner_filter)
     help_handler = CommandHandler(BotCommands.HelpCommand,
                                   bot_help, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
     stats_handler = CommandHandler(BotCommands.StatsCommand,
