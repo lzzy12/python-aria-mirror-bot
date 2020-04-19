@@ -18,15 +18,15 @@ from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.message_utils import *
 from bot.helper.mirror_utils.download_utils.youtube_dl_download_helper import YoutubeDLHelper
 import pathlib
-import os
+import os, tarfile, zipfile
 
 
 class MirrorListener(listeners.MirrorListeners):
-
-    def __init__(self, bot, update, isTar=False, tag=None):
+    def __init__(self, bot, update, isTar=False,tag=None, extract=False):
         super().__init__(bot, update)
         self.isTar = isTar
         self.tag = tag
+        self.extract = extract
 
     def onDownloadStarted(self):
         pass
@@ -60,6 +60,18 @@ class MirrorListener(listeners.MirrorListeners):
                 LOGGER.info('File to archive not found!')
                 self.onUploadError('Internal error occurred!!')
                 return
+        elif self.extract:
+            if tarfile.is_tarfile(m_path) or zipfile.is_zipfile(m_path):
+                LOGGER.info(
+                    f"Extracting : {download_dict[self.uid].name()} "
+                )
+                path = fs_utils.unzip(m_path)
+                LOGGER.info(
+                    f'got path : {path}'
+                )
+            else:
+                LOGGER.info("Not any valid archive, uploading file as it is.")
+                path = f'{DOWNLOAD_DIR}{self.uid}/{download_dict[self.uid].name()}'
         else:
             path = f'{DOWNLOAD_DIR}{self.uid}/{download_dict[self.uid].name()}'
         up_name = pathlib.PurePath(path).name
@@ -144,8 +156,7 @@ class MirrorListener(listeners.MirrorListeners):
         else:
             update_all_messages()
 
-
-def _mirror(bot, update, isTar=False):
+def _mirror(bot, update, isTar=False, extract=False):
     message_args = update.message.text.split(' ')
     try:
         link = message_args[1]
@@ -185,7 +196,7 @@ def _mirror(bot, update, isTar=False):
         link = direct_link_generator(link)
     except DirectDownloadLinkException as e:
         LOGGER.info(f'{link}: {e}')
-    listener = MirrorListener(bot, update, isTar, tag)
+    listener = MirrorListener(bot, update, isTar, tag, extract)
     aria = aria2_download.AriaDownloadHelper(listener)
     aria.add_download(link, f'{DOWNLOAD_DIR}/{listener.uid}/')
     sendStatusMessage(update, bot)
@@ -203,9 +214,17 @@ def tar_mirror(update, context):
     _mirror(context.bot, update, True)
 
 
+@run_async
+def unzip_mirror(update, bot):
+    _mirror(update, bot, extract=True)
+
+
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
                                 filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
 tar_mirror_handler = CommandHandler(BotCommands.TarMirrorCommand, tar_mirror,
                                     filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
+unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirror,
+                                      filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
 dispatcher.add_handler(mirror_handler)
 dispatcher.add_handler(tar_mirror_handler)
+dispatcher.add_handler(unzip_mirror_handler)

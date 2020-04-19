@@ -51,6 +51,15 @@ def tar(org_path):
     return tar_path
 
 
+def unzip(orig_path: str):
+    path = pathlib.PurePath(orig_path)
+    base = os.path.splitext(path.name)[0]
+    root = pathlib.Path(path.parent.as_posix()).absolute().as_posix()
+    LOGGER.info(f'unzip: orig_path: {orig_path} {os.path.join(root, base)} ')
+    shutil.unpack_archive(orig_path, os.path.join(root, base))
+    return os.path.join(root, base)
+
+
 def get_mime_type(file_path):
     mime = magic.Magic(mime=True)
     mime_type = mime.from_file(file_path)
