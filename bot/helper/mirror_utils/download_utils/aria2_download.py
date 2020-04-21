@@ -25,10 +25,12 @@ class AriaDownloadHelper(DownloadHelper):
     def __onDownloadComplete(self, api: API, gid):
         with self._resource_lock:
             if self.gid == gid:
-                if api.get_download(gid).followed_by_ids:
-                    self.gid = api.get_download(gid).followed_by_ids[0]
+                download = api.get_download(gid)
+                if download.followed_by_ids:
+                    self.gid = download.followed_by_ids[0]
                     with download_dict_lock:
-                        download_dict[self.__listener.uid] = AriaDownloadStatus(self.gid, self.__listener)
+                        download_dict[self.__listener.uid] = AriaDownloadStatus(self, self.__listener)
+                    if download.is_torrent:
                         download_dict[self.__listener.uid].is_torrent = True
                     update_all_messages()
                     LOGGER.info(f'Changed gid from {gid} to {self.gid}')
@@ -60,7 +62,7 @@ class AriaDownloadHelper(DownloadHelper):
             download = aria2.add_uris([link], {'dir': path})
         self.gid = download.gid
         with download_dict_lock:
-            download_dict[self.__listener.uid] = AriaDownloadStatus(self.gid, self.__listener)
+            download_dict[self.__listener.uid] = AriaDownloadStatus(self, self.__listener)
         if download.error_message:
             self.__listener.onDownloadError(download.error_message)
             return
@@ -73,7 +75,7 @@ class AriaDownloadHelper(DownloadHelper):
 
     def cancel_download(self):
         download = aria2.get_download(self.gid)
-        if download.is_queued:
+        if download.is_waiting:
             aria2.remove([download])
             self.__listener.onDownloadError("Cancelled by user")
             return

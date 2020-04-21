@@ -175,6 +175,8 @@ class GoogleDriveHelper:
         return download_url
 
     def upload(self, file_name: str):
+        if USE_SERVICE_ACCOUNTS:
+            self.service_account_count = len(os.listdir("accounts"))
         self.__listener.onUploadStarted()
         file_dir = f"{DOWNLOAD_DIR}{self.__listener.message.message_id}"
         file_path = f"{file_dir}/{file_name}"
@@ -248,10 +250,7 @@ class GoogleDriveHelper:
         self.transferred_size = 0
         try:
             file_id = self.getIdFromUrl(link)
-        except KeyError:
-            msg = "Google drive ID could not be found in the provided link"
-            return msg
-        except IndexError:
+        except (KeyError,IndexError):
             msg = "Google drive ID could not be found in the provided link"
             return msg
         msg = ""
@@ -275,12 +274,26 @@ class GoogleDriveHelper:
                 return err
             msg += f'<a href="{self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL.format(dir_id)}">{meta.get("name")}</a>' \
                    f' ({get_readable_file_size(self.transferred_size)})'
+            if INDEX_URL is not None:
+                url = requests.utils.requote_uri(f'{INDEX_URL}/{meta.get("name")}/')
+                msg += f' | <a href="{url}"> Index URL</a>'
         else:
-            file = self.copyFile(meta.get('id'), parent_id)
-
-            msg += f'<a href="{self.__G_DRIVE_BASE_DOWNLOAD_URL.format(file.get("id"))}">{meta.get("name")}</a>'
+            try:
+                file = self.copyFile(meta.get('id'), parent_id)
+            except Exception as e:
+                if isinstance(e, RetryError):
+                    LOGGER.info(f"Total Attempts: {e.last_attempt.attempt_number}")
+                    err = e.last_attempt.exception()
+                else:
+                    err = str(e).replace('>', '').replace('<', '')
+                LOGGER.error(err)
+                return err
+            msg += f'<a href="{self.__G_DRIVE_BASE_DOWNLOAD_URL.format(file.get("id"))}">{file.get("name")}</a>'
             try:
                 msg += f' ({get_readable_file_size(int(meta.get("size")))}) '
+                if INDEX_URL is not None:
+                    url = requests.utils.requote_uri(f'{INDEX_URL}/{file.get("name")}')
+                    msg += f' | <a href="{url}"> Index URL</a>'
             except TypeError:
                 pass
         return msg
@@ -412,7 +425,7 @@ class GoogleDriveHelper:
                 msg += f"⁍ <a href='https://drive.google.com/uc?id={file.get('id')}" \
                        f"&export=download'>{file.get('name')}</a> ({get_readable_file_size(int(file.get('size')))})"
                 if INDEX_URL is not None:
-                    url = requests.utils.requote_uri(f'{INDEX_URL}/{file.get("name")}/')
+                    url = requests.utils.requote_uri(f'{INDEX_URL}/{file.get("name")}')
                     msg += f' | <a href="{url}"> Index URL</a>'
             msg += '\n'
         return msg
