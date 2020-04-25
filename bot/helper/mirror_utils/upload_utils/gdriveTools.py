@@ -35,12 +35,14 @@ class GoogleDriveHelper:
         self.UPDATE_INTERVAL = 5
         self.start_time = 0
         self.total_time = 0
+        self.service_account_count = 0
         self._should_update = True
         self.is_uploading = True
         self.is_cancelled = False
         self.status = None
         self.updater = None
         self.name = name
+        
 
     def cancel(self):
         self.is_cancelled = True
