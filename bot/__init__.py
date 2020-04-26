@@ -2,6 +2,7 @@ import logging
 import os
 import threading
 import time
+from distutils.util import strtobool as stb
 
 import aria2p
 import telegram.ext as tg
@@ -24,18 +25,15 @@ load_dotenv('config.env')
 Interval = []
 
 
-def getConfig(name: str):
-    return os.environ[name]
+def getConfig(name: str, default: str):
+    return os.environ.get(name, default)
 
 
 LOGGER = logging.getLogger(__name__)
 
-try:
-    if bool(getConfig('_____REMOVE_THIS_LINE_____')):
-        logging.error('The README.md file there to be read! Exiting now!')
-        exit()
-except KeyError:
-    pass
+if stb(getConfig('_____REMOVE_THIS_LINE_____', 'False')):
+    logging.error('The README.md file there to be read! Exiting now!')
+    exit()
 
 aria2 = aria2p.API(
     aria2p.Client(
@@ -45,8 +43,6 @@ aria2 = aria2p.API(
     )
 )
 
-DOWNLOAD_DIR = None
-BOT_TOKEN = None
 
 download_dict_lock = threading.Lock()
 status_reply_dict_lock = threading.Lock()
@@ -64,44 +60,22 @@ if os.path.exists('authorized_chats.txt'):
         for line in lines:
             #    LOGGER.info(line.split())
             AUTHORIZED_CHATS.add(int(line.split()[0]))
-try:
-    BOT_TOKEN = getConfig('BOT_TOKEN')
-    parent_id = getConfig('GDRIVE_FOLDER_ID')
-    DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
-    if DOWNLOAD_DIR[-1] != '/' or DOWNLOAD_DIR[-1] != '\\':
-        DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
-    DOWNLOAD_STATUS_UPDATE_INTERVAL = int(getConfig('DOWNLOAD_STATUS_UPDATE_INTERVAL'))
-    OWNER_ID = int(getConfig('OWNER_ID'))
-    AUTO_DELETE_MESSAGE_DURATION = int(getConfig('AUTO_DELETE_MESSAGE_DURATION'))
-    USER_SESSION_STRING = getConfig('USER_SESSION_STRING')
-    TELEGRAM_API = getConfig('TELEGRAM_API')
-    TELEGRAM_HASH = getConfig('TELEGRAM_HASH')
-except KeyError as e:
-    LOGGER.error("One or more env variables missing! Exiting now")
-    exit(1)
-try:
-    INDEX_URL = getConfig('INDEX_URL')
-    if len(INDEX_URL) == 0:
-        INDEX_URL = None
-except KeyError:
-    INDEX_URL = None
-try:
-    IS_TEAM_DRIVE = getConfig('IS_TEAM_DRIVE')
-    if IS_TEAM_DRIVE.lower() == 'true':
-        IS_TEAM_DRIVE = True
-    else:
-        IS_TEAM_DRIVE = False
-except KeyError:
-    IS_TEAM_DRIVE = False
 
-try:
-    USE_SERVICE_ACCOUNTS = getConfig('USE_SERVICE_ACCOUNTS')
-    if USE_SERVICE_ACCOUNTS.lower() == 'true':
-        USE_SERVICE_ACCOUNTS = True
-    else:
-        USE_SERVICE_ACCOUNTS = False
-except KeyError:
-    USE_SERVICE_ACCOUNTS = False
+BOT_TOKEN = getConfig('BOT_TOKEN', None)
+parent_id = getConfig('GDRIVE_FOLDER_ID', None)
+DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR', None)
+if DOWNLOAD_DIR[-1] != '/' or DOWNLOAD_DIR[-1] != '\\':
+    DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
+DOWNLOAD_STATUS_UPDATE_INTERVAL = int(getConfig('DOWNLOAD_STATUS_UPDATE_INTERVAL', 5))
+OWNER_ID = int(getConfig('OWNER_ID', 0))
+AUTO_DELETE_MESSAGE_DURATION = int(getConfig('AUTO_DELETE_MESSAGE_DURATION', 20))
+USER_SESSION_STRING = getConfig('USER_SESSION_STRING', None)
+TELEGRAM_API = getConfig('TELEGRAM_API', None)
+TELEGRAM_HASH = getConfig('TELEGRAM_HASH', None)
+INDEX_URL = getConfig('INDEX_URL', None)
+IS_TEAM_DRIVE = stb(getConfig('IS_TEAM_DRIVE', 'False'))
+USE_SERVICE_ACCOUNTS = stb(getConfig('USE_SERVICE_ACCOUNTS', 'False'))
+
 
 updater = tg.Updater(token=BOT_TOKEN,use_context=True)
 bot = updater.bot
