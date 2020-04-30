@@ -84,7 +84,7 @@ sudo docker build . -t mirror-bot
 ```
 sudo docker run mirror-bot
 ```
-- Deploying on Heroku
+## Deploying on Heroku
 - Login into your heroku account with command and follow on screen instructions:
 ```
 heroku login
