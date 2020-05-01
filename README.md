@@ -87,6 +87,8 @@ sudo docker run mirror-bot
 ## Deploying on Heroku
 - Login into your heroku account with command and follow on screen instructions:
 ```
+curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+
 heroku login
 ```
 - Create a new heroku app:
@@ -103,7 +105,7 @@ heroku stack:set container
 ```
 - Add Private Credentials and Config Stuff:
 ```
-git add -f credentials.json token.pickle ./bot/config.ini
+git add -f credentials.json token.pickle config.env
 ```
 - Commit new changes:
 ```
