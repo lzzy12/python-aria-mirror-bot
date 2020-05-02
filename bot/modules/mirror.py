@@ -215,8 +215,8 @@ def tar_mirror(update, context):
 
 
 @run_async
-def unzip_mirror(update, bot):
-    _mirror(update, bot, extract=True)
+def unzip_mirror(update, context):
+    _mirror(context.bot,update, extract=True)
 
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
