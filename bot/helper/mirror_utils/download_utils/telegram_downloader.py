@@ -4,8 +4,8 @@ import time
 
 from pyrogram import Client
 
-from bot import LOGGER, download_dict, download_dict_lock, TELEGRAM_API, \
-    TELEGRAM_HASH, USER_SESSION_STRING
+from bot import LOGGER, download_dict, download_dict_lock, \
+    TELEGRAM_CHANNEL_ID
 from .download_helper import DownloadHelper
 from ..status_utils.telegram_download_status import TelegramDownloadStatus
 
@@ -23,10 +23,6 @@ class TelegramDownloadHelper(DownloadHelper):
         self.__name = ""
         self.__gid = ''
         self.__start_time = time.time()
-        self.__user_bot = Client(api_id=TELEGRAM_API,
-                                 api_hash=TELEGRAM_HASH,
-                                 session_name=USER_SESSION_STRING)
-        self.__user_bot.start()
         self.__is_cancelled = False
 
     @property

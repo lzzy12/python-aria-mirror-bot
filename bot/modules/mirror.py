@@ -1,7 +1,7 @@
 import requests
 from telegram.ext import CommandHandler, run_async
 
-from bot import Interval, INDEX_URL
+from bot import Interval, INDEX_URL, TELEGRAM_CHANNEL_ID, TELEGRAM_S_U
 from bot import dispatcher, DOWNLOAD_DIR, DOWNLOAD_STATUS_UPDATE_INTERVAL, download_dict, download_dict_lock
 from bot.helper.ext_utils import fs_utils, bot_utils
 from bot.helper.ext_utils.bot_utils import setInterval
@@ -167,8 +167,10 @@ def _mirror(bot, update, isTar=False):
             if file is not None:
                 if file.mime_type != "application/x-bittorrent":
                     listener = MirrorListener(bot, update, isTar, tag)
-                    tg_downloader = TelegramDownloadHelper(listener)
-                    tg_downloader.add_download(reply_to, f'{DOWNLOAD_DIR}{listener.uid}/')
+                    fwded_mesg = update.message.forward(TELEGRAM_CHANNEL_ID)
+                    link = TELEGRAM_S_U.format(mid=fwded_mesg.message_id)
+                    aria = aria2_download.AriaDownloadHelper(listener)
+                    aria.add_download(link, f'{DOWNLOAD_DIR}/{listener.uid}/')
                     sendStatusMessage(update, bot)
                     if len(Interval) == 0:
                         Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
