@@ -49,19 +49,22 @@ status_reply_dict = {}
 # Value: An object of DownloadStatus
 download_dict = {}
 # Stores list of users and chats the bot is authorized to use in
+
+
 try:
     BOT_TOKEN = getConfig('BOT_TOKEN')
     parent_id = getConfig('GDRIVE_FOLDER_ID')
     DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
+    CRED_JSON = getConfig('SECRET_JSON')
     AUTHORIZED_CHATS = [int(i) for i in os.environ.get("AUTH_CHATS", "").split(" ")]
     if DOWNLOAD_DIR[-1] != '/' or DOWNLOAD_DIR[-1] != '\\':
         DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
     DOWNLOAD_STATUS_UPDATE_INTERVAL = int(getConfig('DOWNLOAD_STATUS_UPDATE_INTERVAL'))
     OWNER_ID = int(getConfig('OWNER_ID'))
     AUTO_DELETE_MESSAGE_DURATION = int(getConfig('AUTO_DELETE_MESSAGE_DURATION'))
-    USER_SESSION_STRING = getConfig('USER_SESSION_STRING')
-    TELEGRAM_API = getConfig('TELEGRAM_API')
-    TELEGRAM_HASH = getConfig('TELEGRAM_HASH')
+    USER_SESSION_STRING = getConfig('SESSION_STRING')
+    TELEGRAM_API = getConfig('API_ID')
+    TELEGRAM_HASH = getConfig('API_HASH')
 except KeyError as e:
     LOGGER.error("One or more env variables missing! Exiting now")
     exit(1)
