@@ -27,7 +27,7 @@ Hit the deploy to heroku button and follow the further instructions in the scree
 
  
 
-## Getting Google OAuth API credential file
+## Getting Google OAuth API credential or SECRET_JSON
 
 - Visit the [Google Cloud Console](https://console.developers.google.com/apis/credentials)
 - Go to the OAuth Consent tab, fill it, and save.
@@ -35,7 +35,7 @@ Hit the deploy to heroku button and follow the further instructions in the scree
 - Choose Other and Create.
 - Visit [Google API page](https://console.developers.google.com/apis/library)
 - Search for Drive and enable it if it is disabled
-- Finally, run the script to generate auth json for Google Drive:
+- Finally, run the script to generate SECRET_JSON for Google Drive
 
 ```
 pip install oauth2client
