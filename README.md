@@ -45,7 +45,18 @@ python3 generate_drive_token.py
 ```
 OR use online terminal
 
-[![Run](https://img.shields.io/badge/Run%20Online-Black)](https://gdrive-auth.cw4rr10r.repl.run)
+[![Run](https://img.shields.io/badge/Run%20Online-Red)](https://gdrive-auth.cw4rr10r.repl.run)
+
+**Termux:**
+
+``` pkg install python wget ```
+
+``` wget https://raw.githubusercontent.com/CW4RR10R/python-aria-mirror-bot/master/generate_drive_token.py ```
+
+``` pip install oauth2client ```
+
+``` python3 generate_drive_token.py ```
+___
 
 
 Fill up rest of the fields in app.json. Meaning of each fields are discussed below:
@@ -70,7 +81,19 @@ python3 generate_string_session.py
 ```
 OR use online terminal
 
-[![Run](https://img.shields.io/badge/Run%20Online-Black)](https://gen-session.cw4rr10r.repl.run)
+[![Run](https://img.shields.io/badge/Run%20Online-Red)](https://gen-session.cw4rr10r.repl.run)
+
+**Termux:**
+
+``` pkg install python wget ``` (if not installed earlier)
+
+``` wget https://raw.githubusercontent.com/CW4RR10R/python-aria-mirror-bot/master/generate_string_session.py ```
+
+``` pip install pyrogram tgcrypto ```
+
+``` python3 generate_string_session.py ```
+
+___
 
 Note: You can limit maximum concurrent downloads by changing the value of MAX_CONCURRENT_DOWNLOADS in aria.sh. By default, it's set to 2
  
