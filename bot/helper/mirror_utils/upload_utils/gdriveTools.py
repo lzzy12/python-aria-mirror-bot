@@ -158,7 +158,8 @@ class GoogleDriveHelper:
                         if USE_SERVICE_ACCOUNTS:
                             self.switchServiceAccount()
                             LOGGER.info(f"Got: {reason}, Trying Again.")
-                            return self.upload_file(file_path, file_name, mime_type, parent_id)
+                            link = self.upload_file(file_path, file_name, mime_type, parent_id)
+                            return link
                     else:
                         raise err
             if status is not None:
