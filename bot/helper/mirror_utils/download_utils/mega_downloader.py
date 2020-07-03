@@ -11,8 +11,6 @@ class MegaDownloaderException(Exception):
 
 
 class MegaAppListener(MegaListener):
-    _NO_EVENT_ON = (MegaRequest.TYPE_LOGIN,
-                    MegaRequest.TYPE_FETCH_NODES)
 
     def __init__(self, continue_event: threading.Event, listener):
         self.continue_event = continue_event
@@ -60,14 +58,15 @@ class MegaAppListener(MegaListener):
                     .format(request, error))
 
         request_type = request.getType()
-        if request_type == MegaRequest.TYPE_LOGIN:
-            api.fetchNodes()
-        elif request_type == MegaRequest.TYPE_GET_PUBLIC_NODE:
+        if request_type == MegaRequest.TYPE_GET_PUBLIC_NODE:
             self.node = request.getPublicMegaNode()
-        elif request_type == MegaRequest.TYPE_FETCH_NODES:
+        if request_type == MegaRequest.TYPE_LOGIN:
+            LOGGER.info("Fetching Nodes.")
+            api.fetchNodes()
+        if request_type == MegaRequest.TYPE_FETCH_NODES:
             LOGGER.info("Fetching Root Node.")
             self.node = api.getRootNode()
-        if request_type not in self._NO_EVENT_ON:
+        if request_type != MegaRequest.TYPE_LOGIN:
             self.continue_event.set()
 
     def onRequestTemporaryError(self, api, request, error: MegaError):
