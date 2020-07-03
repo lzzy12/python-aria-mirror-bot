@@ -1,14 +1,15 @@
-FROM ubuntu:18.04
+FROM python:3-slim-buster
 
 WORKDIR /usr/src/app
 RUN chmod 777 /usr/src/app
 
 RUN apt-get -qq update && \
-    apt-get install -y software-properties-common && \
+    apt-get -qq install -y software-properties-common && \
     rm -rf /var/lib/apt/lists/* && \
     apt-add-repository non-free && \
     apt-get -qq update && \
-    apt-get -qq install -y p7zip-full p7zip-rar aria2 curl pv jq ffmpeg locales python3-lxml && \
+    apt-get -qq install -y aria2 p7zip-full p7zip-rar \
+    locales python3-lxml gcc git curl pv jq ffmpeg && \
     apt-get purge -y software-properties-common
 
 COPY requirements.txt .
