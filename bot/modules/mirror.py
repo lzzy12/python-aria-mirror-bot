@@ -1,4 +1,6 @@
 import requests
+import random
+import string
 from telegram.ext import CommandHandler, run_async
 
 from bot import Interval, INDEX_URL
@@ -114,6 +116,30 @@ class MirrorListener(listeners.MirrorListeners):
                 share_url = requests.utils.requote_uri(f'{INDEX_URL}/{download_dict[self.uid].name()}')
                 if os.path.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{download_dict[self.uid].name()}'):
                     share_url += '/'
+                    def get_random_string(length):
+                        letters = string.ascii_lowercase
+                        result_str = ''.join(random.choice(letters) for i in range(length))
+                        return result_str
+
+                    def gplink(link):
+                        gplink_url = "https://gplinks.in/api?api={api}&url={link}&alias={username}"
+                        api_id = "89e771c8e00dbba8bb36cdbaf4ef2bdf8fc2800f"
+                        random_alias = get_random_string(30)
+                        r = requests.get(
+                        gplink_url.format(
+                        api=api_id,
+                        link=link,
+                        username=random_alias
+                        )
+                        )
+                        r2json = r.json()
+                        if r2json["message"] == "['Alias already exists.']":
+                            gplink(link)
+                        elif r2json["status"] == "success":
+                            return r2json["shortenedUrl"]
+                        else:
+                            return link
+                    share_url = gplink(share_url)
                 msg += f'\n\n<b>Index:</b> {share_url}'
             if self.tag is not None:
                 msg += f'\ncc: @{self.tag}'
