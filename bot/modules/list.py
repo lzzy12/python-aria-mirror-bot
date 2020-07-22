@@ -4,12 +4,14 @@ from bot import LOGGER, dispatcher
 from bot.helper.telegram_helper.message_utils import auto_delete_message, sendMessage
 from bot.helper.telegram_helper.filters import CustomFilters
 import threading
+import re
 from bot.helper.telegram_helper.bot_commands import BotCommands
 
 @run_async
 def list_drive(update,context):
     message = update.message.text
     search = message.split(' ',maxsplit=1)[1]
+    search = re.escape(search)
     LOGGER.info(f"Searching: {search}")
     gdrive = GoogleDriveHelper(None)
     msg = gdrive.drive_list(search)
