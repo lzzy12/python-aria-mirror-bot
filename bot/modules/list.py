@@ -10,6 +10,7 @@ from bot.helper.telegram_helper.bot_commands import BotCommands
 def list_drive(update,context):
     message = update.message.text
     search = message.split(' ',maxsplit=1)[1]
+    search = search.replace("'", "")
     LOGGER.info(f"Searching: {search}")
     gdrive = GoogleDriveHelper(None)
     msg = gdrive.drive_list(search)
