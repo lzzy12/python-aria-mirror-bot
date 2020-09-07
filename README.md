@@ -131,3 +131,4 @@ For using your premium accounts in youtube-dl, edit the netrc file (in the root 
 machine host login username password my_youtube_password
 ```
 where host is the name of extractor (eg. youtube, twitch). Multiple accounts of different hosts can be added each separated by a new line
+[![Run on Repl.it](https://repl.it/badge/github/TheWeaver786/python-aria-mirror-bot)](https://repl.it/github/TheWeaver786/python-aria-mirror-bot)
