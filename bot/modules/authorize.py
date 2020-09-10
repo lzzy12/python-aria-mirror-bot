@@ -10,9 +10,9 @@ from bot.helper.telegram_helper.bot_commands import BotCommands
 
 @run_async
 def authorize(update,context):
-    reply_message = update.message.reply_to_message
     msg = ''
     with open('authorized_chats.txt', 'a') as file:
+        reply_message = update.message.reply_to_message
         if reply_message is None:
             # Trying to authorize a chat
             chat_id = update.effective_chat.id
