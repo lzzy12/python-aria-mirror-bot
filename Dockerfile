@@ -1,6 +1,7 @@
 FROM ubuntu:20.04
-
 WORKDIR /usr/src/app
+# http://bugs.python.org/issue19846
+ENV LANG C.UTF-8
 RUN chmod 777 /usr/src/app
 RUN apt-get -qq update && \
     DEBIAN_FRONTEND="noninteractive" apt-get -qq install -y tzdata aria2 git python3 python3-pip \
