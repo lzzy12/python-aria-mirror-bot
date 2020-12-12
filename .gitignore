@@ -4,7 +4,7 @@ config.env
 downloads/*
 download/*
 data*
-.vscode
+venv
 .idea
 *.json
 *.pickle
