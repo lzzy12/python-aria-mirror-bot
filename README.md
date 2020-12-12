@@ -42,7 +42,7 @@ sudo pacman -S docker python
 ```
 
 - Install dependencies for running setup scripts:
-```shell script
+```
 pip3 install -r requirements-cli.txt
 ```
 
@@ -100,6 +100,77 @@ sudo docker build . -t mirror-bot
 - Run the image:
 ```
 sudo docker run mirror-bot
+```
+
+# Deploy to Heroku
+(coming soon......)
+
+# Deploy to Heroku Manually
+
+## Creating a Private Repo
+
+- Create your GitHub account (skip if you already have one).
+- Open [this link](https://github.com/new/import) to import this repo to a new repo that will be created and owned by you.
+- Clone this existing repo to your new private repo by pasting [this repo's url](https://github.com/lzzy12/python-aria-mirror-bot) in the clone url field and enter any name for your repo (for our reference, your-private-repo).
+- Clone your private repo locally and delete the '.gitignore' file:
+```
+git clone https://github.com/username/your-private-repo
+cd your-private-repo
+rm -rfv .gitignore
+```
+**NOTE:** Replace 'username' with your GitHub username and 'your-private-repo' with the name of your private repo.
+**NOTE:** Authenticate into GitHub, if prompted. If you have enabled 2FA in GitHub, you may not be able to authenticate. In that case, create a Personal Access Token, with 'repo-only' access, under Developer Settings in GitHub Settings and use it in the password field to authenticate in git.
+- Commit and push the changes made to the remote GitHub repo:
+```
+git add .
+git commit -m "removed gitignore file"
+git push -f origin master
+```
+- Now, setup the config file by following [this section](https://github.com/lzzy12/python-aria-mirror-bot#setting-up-config-file) and get the OAuth credential file by following [this section](https://github.com/lzzy12/python-aria-mirror-bot#getting-google-oauth-api-credential-file).
+**NOTE:** The cloned repo's visibility must be set to private, as this method requires the sensitive files (credentials.json, config.env, token.pickle) containing personal data to be in the repo to be successfully deployed on Heroku; setting repo's visibility to 'public' might compromise personal data. Alternatively, you can set up a git repo on your local machine by cloning this repo and sync it with Heroku Git remote repo.
+
+## Creating Heroku App
+
+- Create a [free Heroku account](https://id.heroku.com/signup/login).
+- Install Heroku CLI:
+```
+sudo snap install --classic heroku
+```
+- Login into your Heroku account:
+```
+heroku login
+```
+- Visit [Heroku Dashboard](https://dashboard.heroku.com) and create a new app with any name(for our reference, your-mirror-bot) and with any region you prefer, for your app to be served from.
+- In the Deploy tab of your app dashboard, select  GitHub in 'Deployment Method' and connect and authorize your Heroku account to access your public and private repos on GitHub.
+- Search and select your private repo to connect to your Heroku app.
+- (Optional) In auto deploy section, select a repo branch (master) to auto deploy the app from, if any new commit is made to the selected branch on GitHub.
+- In manual deploy section, select a repo branch (master) to deploy the app and hit the deploy button.
+- Wait for the build to finish and ignore any errors that popped up during the build process.
+- Change the stack for the app using Heroku CLI:
+```
+heroku stack:set container --app your-mirror-bot
+```
+- Now, go to the manual deploy section in the deploy tab of your Heroku app dashboard and hit the deploy button.
+- Check for any errors in the build process and wait until it completes.
+
+## Run/Terminate the App:
+You can run/terminate the app by allocating dynos to the app.
+
+- Using Dashboard:
+In the app dashboard, under resources tab, use the 'Edit dyno formation' button in Dynos section to change the working state of the app.
+
+- Using CLI:
+To Run:
+```
+heroku ps:scale worker=1 --app your-mirror-bot
+```
+To Terminate:
+```
+heroku ps:scale worker=0 --app your-mirror-bot
+```
+Check Status:
+```
+heroku ps --app your-mirror-bot
 ```
 
 # Using service accounts for uploading to avoid user rate limit
