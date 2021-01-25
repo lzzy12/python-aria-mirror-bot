@@ -19,11 +19,11 @@ def _watch(bot: Bot, update: Update, args: list, isTar=False):
         sendMessage(msg, bot, update)
         return
     try:
-      qual = args[1]
-      if qual != "audio":
-        qual = f'best[height<={qual}]/bestvideo[height<={qual}]+bestaudio'
+        qual = args[1]
+        if qual != "audio":
+            qual = f'best[height<={qual}]/bestvideo[height<={qual}]+bestaudio'
     except IndexError:
-      qual = "best/bestvideo+bestaudio"
+        qual = "best/bestvideo+bestaudio"
     reply_to = update.message.reply_to_message
     if reply_to is not None:
         tag = reply_to.from_user.username
@@ -32,13 +32,12 @@ def _watch(bot: Bot, update: Update, args: list, isTar=False):
 
     listener = MirrorListener(bot, update, isTar, tag)
     ydl = YoutubeDLHelper(listener)
-    threading.Thread(target=ydl.add_download,args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qual)).start()
+    threading.Thread(target=ydl.add_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qual)).start()
     sendStatusMessage(update, bot)
     if len(Interval) == 0:
         Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
 
 
-@run_async
 def watchTar(update, context):
     _watch(context.bot, update, context.args, True)
 
@@ -49,9 +48,10 @@ def watch(update, context):
 
 mirror_handler = CommandHandler(BotCommands.WatchCommand, watch,
                                 pass_args=True,
-                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
+                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 tar_mirror_handler = CommandHandler(BotCommands.TarWatchCommand, watchTar,
                                     pass_args=True,
-                                    filters=CustomFilters.authorized_chat | CustomFilters.authorized_user)
+                                    filters=CustomFilters.authorized_chat | CustomFilters.authorized_user,
+                                    run_async=True)
 dispatcher.add_handler(mirror_handler)
 dispatcher.add_handler(tar_mirror_handler)
