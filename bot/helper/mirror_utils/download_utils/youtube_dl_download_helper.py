@@ -113,7 +113,7 @@ class YoutubeDLHelper(DownloadHelper):
         if 'entries' in result:
             video = result['entries'][0]
             for v in result['entries']:
-                if v.get('filesize'):
+                if v and v.get('filesize'):
                     self.size += float(v['filesize'])
             # For playlists, ydl.prepare-filename returns the following format: <Playlist Name>-<Id of playlist>.NA
             self.name = name.split(f"-{result['id']}")[0]
@@ -141,6 +141,9 @@ class YoutubeDLHelper(DownloadHelper):
             self.onDownloadError("Download Cancelled by User!")
 
     def add_download(self, link, path, qual):
+        pattern = '^.*(youtu\.be\/|youtube.com\/)(playlist?)'
+        if re.match(pattern, link):
+            self.opts['ignoreerrors'] = True
         self.__onDownloadStart()
         self.extractMetaData(link, qual)
         LOGGER.info(f"Downloading with YT-DL: {link}")
