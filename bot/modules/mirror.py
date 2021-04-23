@@ -53,7 +53,9 @@ class MirrorListener(listeners.MirrorListeners):
             download = download_dict[self.uid]
             name = download.name()
             size = download.size_raw()
-            m_path = f'{DOWNLOAD_DIR}{self.uid}/{download.name()}'
+            if name is None: # when pyrogram's media.file_name is of NoneType
+                name = os.listdir(f'{DOWNLOAD_DIR}{self.uid}')[0]
+            m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         if self.isTar:
             download.is_archiving = True
             try:
@@ -88,8 +90,6 @@ class MirrorListener(listeners.MirrorListeners):
                 LOGGER.info("Not any valid archive, uploading file as it is.")
                 path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         else:
-            if name is None: # when pyrogram's media.file_name is of NoneType
-                name = os.listdir(f'{DOWNLOAD_DIR}{self.uid}')[0]
             path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         up_name = pathlib.PurePath(path).name
         LOGGER.info(f"Upload Name : {up_name}")
