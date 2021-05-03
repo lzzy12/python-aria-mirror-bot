@@ -5,6 +5,7 @@ from bot import Interval, INDEX_URL,LOGGER
 from bot import dispatcher, DOWNLOAD_DIR, DOWNLOAD_STATUS_UPDATE_INTERVAL, download_dict, download_dict_lock
 from bot.helper.ext_utils import fs_utils, bot_utils
 from bot.helper.ext_utils.bot_utils import setInterval
+from bot.helper.ext_utils.torrent_search_utils import search_torrent_link
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException, NotSupportedExtractionArchive
 from bot.helper.mirror_utils.download_utils.aria2_download import AriaDownloadHelper
 from bot.helper.mirror_utils.download_utils.direct_link_generator import direct_link_generator
@@ -171,11 +172,19 @@ class MirrorListener(listeners.MirrorListeners):
             update_all_messages()
 
 def _mirror(bot, update, isTar=False, extract=False):
-    message_args = update.message.text.split(' ')
-    try:
-        link = message_args[1]
-    except IndexError:
-        link = ''
+    if search:
+        LOGGER.info(update.message.text)
+        query = update.message.text.replace(BotCommands.SearchMirrorCommand,"")
+        link = search_torrent_link(query)
+        LOGGER.info(link)
+        if link == "not found":
+            link = ''
+    else:
+        message_args = update.message.text.split(' ')
+        try:
+            link = message_args[1]
+        except IndexError:
+            link = ''
     LOGGER.info(link)
     link = link.strip()
     reply_to = update.message.reply_to_message
@@ -203,7 +212,10 @@ def _mirror(bot, update, isTar=False, extract=False):
     else:
         tag = None
     if not bot_utils.is_url(link) and not bot_utils.is_magnet(link):
-        sendMessage('No download source provided', bot, update)
+        if search:
+            sendMessage('Provided query did\'nt return any result, \n Try Again with right name or Torrent API may be down', bot , update)
+        else:
+            sendMessage('No download source provided', bot, update)
         return
 
     try:
@@ -229,9 +241,13 @@ def tar_mirror(update, context):
 def unzip_mirror(update, context):
     _mirror(context.bot,update, extract=True)
 
+def search_mirror(update, context):
+    _mirror(context.bot, update, search=True)
 
 mirror_handler = CommandHandler(BotCommands.MirrorCommand, mirror,
                                 filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+search_mirror_handler =  CommandHandler(BotCommands.SearchMirrorCommand, search_mirror,
+                                        filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 tar_mirror_handler = CommandHandler(BotCommands.TarMirrorCommand, tar_mirror,
                                     filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirror,
