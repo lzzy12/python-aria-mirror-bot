@@ -171,7 +171,7 @@ class MirrorListener(listeners.MirrorListeners):
         else:
             update_all_messages()
 
-def _mirror(bot, update, isTar=False, extract=False):
+def _mirror(bot, update, isTar=False, extract=False, search=False):
     if search:
         LOGGER.info(update.message.text)
         query = update.message.text.replace(BotCommands.SearchMirrorCommand,"")
@@ -255,3 +255,4 @@ unzip_mirror_handler = CommandHandler(BotCommands.UnzipMirrorCommand, unzip_mirr
 dispatcher.add_handler(mirror_handler)
 dispatcher.add_handler(tar_mirror_handler)
 dispatcher.add_handler(unzip_mirror_handler)
+dispatcher.add_handler(search_mirror_handler)
