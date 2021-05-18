@@ -446,3 +446,36 @@ class GoogleDriveHelper:
                     msg += f' | <a href="{url}"> Index URL</a>'
             msg += '\n'
         return msg
+
+    def delete(self, link, trash=True):
+        '''
+        To Delete/Trash Gdrive File/Folder
+        '''
+        try:
+            file_id = self.getIdFromUrl(link)
+        except (KeyError, IndexError):
+            msg = "Google drive ID could not be found in the provided link"
+            return msg
+        msg = ""
+        LOGGER.info(f"File ID: {file_id}")
+        try:
+            meta = self.getFileMetadata(file_id)
+            if trash:
+                self.__service.files().update(fileId=file_id, supportsAllDrives=True,
+                                              body={'trashed': True}).execute()
+                LOGGER.info(f"Trashed: {meta.get('name')}")
+                msg = f"<b>Trashed:</b> {meta.get('name')}"
+            else:
+                self.__service.files().delete(fileId=file_id, supportsAllDrives=True).execute()
+                LOGGER.info(f"Deleted: {meta.get('name')}")
+                msg = f"<b>Deleted:</b> {meta.get('name')}"
+            return msg
+        except Exception as err:
+            if isinstance(err, RetryError):
+                LOGGER.info(
+                    f"Total Attempts: {err.last_attempt.attempt_number}")
+                err = err.last_attempt.exception()
+            err = str(err).replace('>', '').replace('<', '')
+            LOGGER.error(err)
+            return err
+
