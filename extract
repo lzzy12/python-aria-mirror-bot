@@ -39,7 +39,7 @@ extract() {
     ;;
   *.zip)
     a_dir=$(expr "$arg" : '\(.*\).zip')
-    7z x "$arg" -o"$a_dir"
+    unzip "$arg" -d "$a_dir"
     local code=$?
     ;;
   *.7z)
