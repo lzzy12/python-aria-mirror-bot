@@ -19,7 +19,7 @@ class MyLogger:
         # Hack to fix changing changing extension
         match = re.search(r'.ffmpeg..Merging formats into..(.*?).$', msg)
         if match and not self.obj.is_playlist:
-            self.obj.__name = match.group(1)
+            self.obj.set_name(match.group(1))
 
     @staticmethod
     def warning(msg):
@@ -66,6 +66,9 @@ class YoutubeDLHelper(DownloadHelper):
     def gid(self):
         with self.__resource_lock:
             return self.__gid
+
+    def set_name(self, name):
+        self.__name = name
 
     def __onDownloadProgress(self, d):
         if self.is_cancelled:
