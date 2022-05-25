@@ -61,10 +61,11 @@ status_reply_dict = {}
 download_dict = {}
 # Stores list of users and chats the bot is authorized to use in
 redis_client = None
+AUTHORIZED_CHATS = set()
+
 redis_authorised_chats_key = 'bots:authorized_chats'
 def redis_init():
     global redis_client
-    AUTHORIZED_CHATS = set()
     redis_client = redis.Redis(host=getConfig('REDIS_HOST'), port=int(getConfig('REDIS_PORT')), password=getConfig('REDIS_PASSWORD'))
     ids = redis_client.smembers(redis_authorised_chats_key)
     for id in ids:
