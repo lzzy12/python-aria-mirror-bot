@@ -16,6 +16,8 @@ This project is heavily inspired from @out386 's telegram bot which is written i
 - Mirror all youtube-dl supported links
 - Mirror telegram files
 - Stable Mega.nz support
+- Unzip downloads
+- Persistent authorised chat storage
 
 # How to deploy?
 Deploying is pretty much straight forward and is divided into several steps as follows:
@@ -46,6 +48,7 @@ pip3 install -r requirements-cli.txt
 ```
 
 ## Setting up config file
+NOTE: Starting from 953113269e4424ecb956d0b9b093b846301efffb we are moving away from storing authroized chat ids in txt files. We will be using a light weight redis db. So, going forword, a redis db is a must.
 ```
 cp config_sample.env config.env
 ```
@@ -69,6 +72,9 @@ Fill up rest of the fields. Meaning of each fields are discussed below:
 - **MEGA_KEY**: Mega.nz api key to mirror mega.nz links. Get it from [Mega SDK Page](https://mega.nz/sdk)
 - **MEGA_USERNAME**: Your mega email id (You can leave it empty, it will start megasdkrest server in anonymous mode)
 - **MEGA_PASSWORD**: Your password for your mega.nz account. (**NOTE**: You must deactivate 2FA to use the account with the bot otherwise bot will not be able to sign in)
+- **REDIS_HOST**: Redis DB Host URL. Redis DB is used to store the authorised chats informations (you can get it at https://redis.com)
+- **REDIS_PORT**: Redis DB Port number.
+- **REDIS_PASSWORD**: Password of your redis DB
 ```
 python3 generate_string_session.py
 ```
