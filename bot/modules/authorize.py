@@ -6,32 +6,31 @@ from bot.helper.telegram_helper.filters import CustomFilters
 from telegram.ext import Filters
 from telegram import Update
 from bot.helper.telegram_helper.bot_commands import BotCommands
-
+from bot import redis_client, redis_authorised_chats_key
 
 @run_async
 def authorize(update,context):
     reply_message = update.message.reply_to_message
     msg = ''
-    with open('authorized_chats.txt', 'a') as file:
-        if reply_message is None:
-            # Trying to authorize a chat
-            chat_id = update.effective_chat.id
-            if chat_id not in AUTHORIZED_CHATS:
-                file.write(f'{chat_id}\n')
-                AUTHORIZED_CHATS.add(chat_id)
-                msg = 'Chat authorized'
-            else:
-                msg = 'Already authorized chat'
+    if reply_message is None:
+        # Trying to authorize a chat
+        chat_id = update.effective_chat.id
+        if chat_id not in AUTHORIZED_CHATS:
+            redis_client.sadd(redis_authorised_chats_key, chat_id)
+            AUTHORIZED_CHATS.add(chat_id)
+            msg = 'Chat authorized'
         else:
-            # Trying to authorize someone in specific
-            user_id = reply_message.from_user.id
-            if user_id not in AUTHORIZED_CHATS:
-                file.write(f'{user_id}\n')
-                AUTHORIZED_CHATS.add(user_id)
-                msg = 'Person Authorized to use the bot!'
-            else:
-                msg = 'Person already authorized'
-        sendMessage(msg, context.bot, update)
+            msg = 'Already authorized chat'
+    else:
+        # Trying to authorize someone in specific
+        user_id = reply_message.from_user.id
+        if user_id not in AUTHORIZED_CHATS:
+            redis_client.sadd(redis_authorised_chats_key, chat_id)
+            AUTHORIZED_CHATS.add(user_id)
+            msg = 'Person Authorized to use the bot!'
+        else:
+            msg = 'Person already authorized'
+    sendMessage(msg, context.bot, update)
 
 
 @run_async
@@ -53,10 +52,7 @@ def unauthorize(update,context):
             msg = 'Person unauthorized to use the bot!'
         else:
             msg = 'Person already unauthorized!'
-    with open('authorized_chats.txt', 'a') as file:
-        file.truncate(0)
-        for i in AUTHORIZED_CHATS:
-            file.write(f'{i}\n')
+    redis_client.srem(redis_authorised_chats_key, user_id)
     sendMessage(msg, context.bot, update)
 
 

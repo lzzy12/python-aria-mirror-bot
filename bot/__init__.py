@@ -1,3 +1,4 @@
+from http.client import NotConnected
 import logging
 import os
 import threading
@@ -8,6 +9,7 @@ from dotenv import load_dotenv
 import socket
 from megasdkrestclient import MegaSdkRestClient, errors as mega_err
 import subprocess
+import redis
 
 socket.setdefaulttimeout(600)
 
@@ -58,13 +60,17 @@ status_reply_dict = {}
 # Value: An object of Status
 download_dict = {}
 # Stores list of users and chats the bot is authorized to use in
-AUTHORIZED_CHATS = set()
-if os.path.exists('authorized_chats.txt'):
-    with open('authorized_chats.txt', 'r+') as f:
-        lines = f.readlines()
-        for line in lines:
-            #    LOGGER.info(line.split())
-            AUTHORIZED_CHATS.add(int(line.split()[0]))
+redis_client = None
+redis_authorised_chats_key = 'bots:authorized_chats'
+def redis_init():
+    global redis_client
+    AUTHORIZED_CHATS = set()
+    redis_client = redis.Redis(host=getConfig('REDIS_HOST'), port=int(getConfig('REDIS_PORT')), password=getConfig('REDIS_PASSWORD'))
+    ids = redis_client.smembers(redis_authorised_chats_key)
+    for id in ids:
+        AUTHORIZED_CHATS.add(int(id))
+redis_thread = threading.Thread(target=redis_init)
+redis_thread.start()
 try:
     BOT_TOKEN = getConfig('BOT_TOKEN')
     parent_id = getConfig('GDRIVE_FOLDER_ID')
@@ -139,3 +145,4 @@ except KeyError:
 updater = tg.Updater(token=BOT_TOKEN,use_context=True)
 bot = updater.bot
 dispatcher = updater.dispatcher
+redis_thread.join()
