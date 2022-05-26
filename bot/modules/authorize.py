@@ -1,3 +1,4 @@
+from pyparsing import Regex
 from bot.helper.telegram_helper.message_utils import sendMessage
 from telegram.ext import run_async
 from bot import AUTHORIZED_CHATS, dispatcher
@@ -7,12 +8,23 @@ from telegram.ext import Filters
 from telegram import Update
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot import redis_client, redis_authorised_chats_key
+import re
 
 @run_async
 def authorize(update,context):
     reply_message = update.message.reply_to_message
+    reply_text = update.message.text
     msg = ''
-    if reply_message is None:
+    if reply_text is not None:
+        match = re.findall(r'^-?[0-9]\d*(\.\d+)?$', reply_text)
+        if (len(match) > 0):
+            if chat_id not in AUTHORIZED_CHATS:
+                redis_client.sadd(redis_authorised_chats_key, match[0])
+                AUTHORIZED_CHATS.add(chat_id)
+                msg = 'Authorized'
+            else:
+                msg = 'Already authorized user or chat'
+    elif reply_message is None:
         # Trying to authorize a chat
         chat_id = update.effective_chat.id
         if chat_id not in AUTHORIZED_CHATS:
