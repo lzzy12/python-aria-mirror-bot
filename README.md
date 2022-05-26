@@ -72,7 +72,7 @@ Fill up rest of the fields. Meaning of each fields are discussed below:
 - **MEGA_KEY**: Mega.nz api key to mirror mega.nz links. Get it from [Mega SDK Page](https://mega.nz/sdk)
 - **MEGA_USERNAME**: Your mega email id (You can leave it empty, it will start megasdkrest server in anonymous mode)
 - **MEGA_PASSWORD**: Your password for your mega.nz account. (**NOTE**: You must deactivate 2FA to use the account with the bot otherwise bot will not be able to sign in)
-- **REDIS_HOST**: Redis DB Host URL. Redis DB is used to store the authorised chats informations (you can get it at https://redis.com)
+- **REDIS_HOST**: Redis DB Host URL. Redis DB is used to store the authorised chats informations (you can get it at https://redis.com -> Login -> Select Free subscription -> Create Database -> Enter a name -> Select a location(if you want) -> keep everything else default. You will get a public endpoint(refered to as REDIS_HOST in this repo), port (most probably 6397) and a password)
 - **REDIS_PORT**: Redis DB Port number.
 - **REDIS_PASSWORD**: Password of your redis DB
 ```
