@@ -12,18 +12,18 @@ import re
 
 @run_async
 def authorize(update,context):
+    sendMessage("bruh wtf is happening", context.bot, update)
     reply_message = update.message.reply_to_message
-    reply_text = update.message.text
+    msg_text = update.message.text
     msg = ''
-    if reply_text is not None:
-        match = re.findall(r'^-?[0-9]\d*(\.\d+)?$', reply_text)
-        if (len(match) > 0):
-            if chat_id not in AUTHORIZED_CHATS:
-                redis_client.sadd(redis_authorised_chats_key, match[0])
-                AUTHORIZED_CHATS.add(chat_id)
-                msg = 'Authorized'
-            else:
-                msg = 'Already authorized user or chat'
+    match = re.findall(r'^-?[0-9]\d*(\.\d+)?$', msg_text)
+    if (len(match) > 0):
+        if chat_id not in AUTHORIZED_CHATS:
+            redis_client.sadd(redis_authorised_chats_key, match[0])
+            AUTHORIZED_CHATS.add(chat_id)
+            msg = 'Authorized'
+        else:
+            msg = 'Already authorized user or chat'
     elif reply_message is None:
         # Trying to authorize a chat
         chat_id = update.effective_chat.id
