@@ -6,6 +6,7 @@ from ..status_utils.youtube_dl_download_status import YoutubeDLDownloadStatus
 import logging
 import re
 import threading
+import pathlib
 
 LOGGER = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class MyLogger:
         # Hack to fix changing changing extension
         match = re.search(r'.ffmpeg..Merging formats into..(.*?).$', msg)
         if match and not self.obj.is_playlist:
-            self.obj.name = match.group(1)
+            self.obj.set_name(match.group(1))
 
     @staticmethod
     def warning(msg):
@@ -66,6 +67,10 @@ class YoutubeDLHelper(DownloadHelper):
     def gid(self):
         with self.__resource_lock:
             return self.__gid
+    
+    def set_name(self, name):
+        with self.__resource_lock:
+            self.__name = pathlib.PurePath(name).name
 
     def __onDownloadProgress(self, d):
         if self.is_cancelled:
