@@ -42,7 +42,7 @@ except KeyError:
 
 aria2 = aria2p.API(
     aria2p.Client(
-        host="http://localhost",
+        host="http://127.0.0.1",
         port=6800,
         secret="",
     )
@@ -69,7 +69,7 @@ def redis_init():
     redis_client = redis.Redis(host=getConfig('REDIS_HOST'), port=int(getConfig('REDIS_PORT')), password=getConfig('REDIS_PASSWORD'))
     ids = redis_client.smembers(redis_authorised_chats_key)
     for id in ids:
-        AUTHORIZED_CHATS.add(int(id))
+        AUTHORIZED_CHATS.add(id)
 redis_thread = threading.Thread(target=redis_init)
 redis_thread.start()
 try:
