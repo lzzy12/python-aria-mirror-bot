@@ -69,7 +69,7 @@ def redis_init():
     redis_client = redis.Redis(host=getConfig('REDIS_HOST'), port=int(getConfig('REDIS_PORT')), password=getConfig('REDIS_PASSWORD'))
     ids = redis_client.smembers(redis_authorised_chats_key)
     for id in ids:
-        AUTHORIZED_CHATS.add(int(id))
+        AUTHORIZED_CHATS.add(id)
 redis_thread = threading.Thread(target=redis_init)
 redis_thread.start()
 try:
