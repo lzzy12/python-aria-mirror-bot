@@ -30,7 +30,6 @@ def authorize(update: Update,context):
         msg_args = msg_split[1:]
     if msg_args is not None and len(msg_args) > 0:
         match = re.search(r'^-?[0-9]\d*(\.\d+)?$', msg_args[0])
-    msg = ''
     
     if (match is not None):
         chat_id = int(match.group(0))

@@ -66,7 +66,7 @@ AUTHORIZED_CHATS = set()
 redis_authorised_chats_key = 'bots:authorized_chats'
 def redis_init():
     global redis_client
-    redis_client = redis.Redis(host=getConfig('REDIS_HOST'), port=int(getConfig('REDIS_PORT')), password=getConfig('REDIS_PASSWORD'))
+    redis_client = redis.Redis(host=getConfig('REDIS_HOST'), port=int(getConfig('REDIS_PORT')), password=getConfig('REDIS_PASSWORD'), charset="utf-8", decode_responses=True)
     ids = redis_client.smembers(redis_authorised_chats_key)
     for id in ids:
         AUTHORIZED_CHATS.add(id)

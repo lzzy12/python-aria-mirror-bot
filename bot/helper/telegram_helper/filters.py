@@ -12,14 +12,15 @@ class CustomFilters:
 
     class _AuthorizedUserFilter(BaseFilter):
         def filter(self, message):
-            id = message.from_user.id
+            id = str(message.from_user.id)
             return bool(id in AUTHORIZED_CHATS or id == OWNER_ID)
 
     authorized_user = _AuthorizedUserFilter()
 
     class _AuthorizedChat(BaseFilter):
         def filter(self, message):
-            return bool(message.chat.id in AUTHORIZED_CHATS)
+            id = str(message.chat.id)
+            return bool(id in AUTHORIZED_CHATS)
 
     authorized_chat = _AuthorizedChat()
 
