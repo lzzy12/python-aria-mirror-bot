@@ -1,3 +1,5 @@
+[![kandi X-Ray](https://kandi.openweaver.com/badges/xray.svg)](https://kandi.openweaver.com/python/lzzy12/python-aria-mirror-bot)
+[![kandi Featured](https://kandi.openweaver.com/badges/featured.svg)](https://kandi.openweaver.com/collections/python/python-telegram-bot)
 # What is this repo about?
 This is a telegram bot writen in python for mirroring files on the internet to our beloved Google Drive.
 
